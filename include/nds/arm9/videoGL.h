@@ -30,7 +30,29 @@
 ---------------------------------------------------------------------------------*/
 /*! \file videoGL.h
 	\brief openGL (ish) interface to DS 3D hardware.
-*/
+ The Nintendo DS has a fixed point 3D geometry coprocessor that accepts a variety of commands.
+ This module provides an abstraction of open GL direct mode.  The coprocessor does not have any dedicated memory, so each frame must be painted by transfering some geometry definitions to the coprocessor, and then flushing.  You can experiment with the processor by using the functions contained herein, but when you're ready to speed up your game, you should compose your instructions into draw lists, then send them to the coprocessor by glCallList().
+ 
+ glCallList() will instruct the DMA unit to copy memory asychronously to the coprocessor, so the CPU is free to do other things, it is generally used to send geometry data, but can also be used to information to set the rendering settings.
+ 
+    Rendering is controlled by several commands that manipulate:
+        - Display Control
+        - Material & Lighting
+        - Texture mode (shared with 2D)
+        - Vertex Mode
+        - Polygon Mode
+        - Matrix Stack
+        - Flush
+ 
+    The genral sequence of drawing commands is:
+        - Set matrial
+        - Set texture
+        - Set matrix stack
+        - Send vertecies
+ 
+    You can group objects with the same materials together to reduce the number of necessary set material calls.  Generally the polygon mode is set to triangles, and triangulated data is loaded.
+ 
+ */
 
 
 
@@ -373,6 +395,14 @@ static gl_hidden_globals* glGlob = &glGlobalData;
 //Fifo commands
 //---------------------------------------------------------------------------------
 
+/** \dwfgroup glFIFO Packed 3D Engine Commands
+ *
+ */
+
+/** \addtogroup glFIFO
+ *  @{
+ */
+
 #define FIFO_COMMAND_PACK(c1,c2,c3,c4) (((c4) << 24) | ((c3) << 16) | ((c2) << 8) | (c1)) /*!< \brief packs four packed commands into a 32bit command for sending to the GFX FIFO */
 
 #define REG2ID(r)				(u8)( ( ((u32)(&(r)))-0x04000400 ) >> 2 ) /*!< \brief converts a GFX command for use in a packed command list */
@@ -407,6 +437,7 @@ static gl_hidden_globals* glGlob = &glGlobalData;
 #define FIFO_END				REG2ID(GFX_END) /*!< \brief packed command that has no discernable effect, it's probably best to never use it since it bloats the size of the list.<BR><A HREF="http://problemkaputt.de/gbatek.htm#ds3dpolygondefinitionsbyvertices">GBATEK http://problemkaputt.de/gbatek.htm#ds3dpolygondefinitionsbyvertices</A>*/
 #define FIFO_FLUSH				REG2ID(GFX_FLUSH) /*!< \brief packed command that has the same effect as swiWaitForVBlank()<BR><A HREF="http://problemkaputt.de/gbatek.htm#ds3ddisplaycontrol">GBATEK http://problemkaputt.de/gbatek.htm#ds3ddisplaycontrol</A> */
 #define FIFO_VIEWPORT			REG2ID(GFX_VIEWPORT) /*!< \brief packed command for setting viewport<BR><A HREF="http://problemkaputt.de/gbatek.htm#ds3ddisplaycontrol">GBATEK http://problemkaputt.de/gbatek.htm#ds3ddisplaycontrol</A> */
+/** @}*/
 
 
 #ifdef __cplusplus
