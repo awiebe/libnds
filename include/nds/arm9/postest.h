@@ -30,7 +30,8 @@ distribution.
 \brief Position Test Functions.<BR>
 
 <div class="fileHeader">
-The position test multiplies a given vector by the position matrix and returns the coords(x,y,z,w). The position test is really quick, about 10x faster than a box test.
+The position test multiplies a given vector by the position matrix (aka Modelview Matrix) and returns the coords(x,y,z,w). The position test is really quick, about 10x faster than a box test.
+ In other words, he position test transforms a local point to a position in world space, calling it a test is somewhat of a misnomer.
 </div>
 */
 
