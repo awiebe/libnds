@@ -306,5 +306,27 @@ void normalizef32(int32* a)
 	a[2] = divf32(a[2], magnitude);
 }
 
+static inline
+/**
+ *   \brief Returns the euclidian distance between two N-Dimensional points
+ *   \param a first point 20.12 fixed point
+ *   \param b first point 20.12 fixed point
+ *   \param N first point number of dimensions
+ *   \note Overflow not checked, may become unstable for particularliy far distances.
+ *   \return magnitude of distance in 20.12 fixed point
+ * Hypotenuse
+ * result = SQRT(SUM(a[i]-b[i]));
+ */
+int32 hypotf32(int32 *a, int32 *b, int32 N)
+{
+    int32 acc  =0;
+    for(int32 i=0;i<N;i++)
+    {
+        int32 d = a[i]-b[i];
+        acc += mulf32(d,d);
+    }
+    return sqrtf32(acc);
+}
+
 
 #endif
